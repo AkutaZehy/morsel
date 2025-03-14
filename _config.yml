@@ -16,7 +16,7 @@ timezone:
 
 title: Chirpy # the main title
 
-tagline: A text-focused Jekyll theme # it will display as the subtitle
+tagline: Explore every corner I love. # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.
@@ -26,20 +26,20 @@ description: >- # used by seo meta and the atom feed
 url: ""
 
 github:
-  username: github_username # change to your GitHub username
+  username: AkutaZehy # change to your GitHub username
 
 twitter:
-  username: twitter_username # change to your Twitter username
+  username: Shinozeki_Nin # change to your Twitter username
 
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
-  name: your_full_name
-  email: example@domain.com # change to your email address
+  name: Akuta Zehy
+  email: akuta_zehy@outlook.com # change to your email address
   links:
     # The first element serves as the copyright owner's link
-    - https://twitter.com/username # change to your Twitter homepage
-    - https://github.com/username # change to your GitHub homepage
+    - https://twitter.com/Shinozeki_Nin # change to your Twitter homepage
+    - https://github.com/AkutaZehy # change to your GitHub homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
     # - https://www.linkedin.com/in/username
