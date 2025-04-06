@@ -8,8 +8,6 @@ description: detectron2阴魂不散，带上GPT鏖战mask2former...
 
 前情提要：
 
-{% post_url 2025-03-12-第一次使用Linux远程开发 %}
-
 [第一次使用Linux远程开发]({% post_url 2025-03-12-第一次使用Linux远程开发 %})
 
 本来打算这一篇文章全部写完的，想想会太长，单独开一篇记录detectron2/mask2former框架开发踩的坑，把前面一则中与这个框架相关一点的也一并移到这边。
