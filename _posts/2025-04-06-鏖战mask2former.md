@@ -8,7 +8,7 @@ description: detectron2阴魂不散，带上GPT鏖战mask2former...
 
 前情提要：
 
-[第一次使用Linux远程开发](2025-03-12-第一次使用Linux远程开发.md)
+[第一次使用Linux远程开发](./2025-03-12-第一次使用Linux远程开发.md)
 
 本来打算这一篇文章全部写完的，想想会太长，单独开一篇记录detectron2/mask2former框架开发踩的坑，把前面一则中与这个框架相关一点的也一并移到这边。
 
@@ -72,7 +72,7 @@ sh make.sh
 
 1. `vim ~/.bashrc`定位到环境变量。
 2. 添加了形如以下内容到环境变量的末尾：
-```
+```bash
 # ADD CUDA HOME
 export CUDA_HOME=/usr/local/cuda
 export PATH=$PATH:$CUDA_HOME/bin
@@ -119,10 +119,7 @@ python xxx.py
 
 ```python
 def _distributed_worker(*args,**kargs):
-'''
-other codes
-'''
-# Setup the local process group.
+# ...
     comm.create_local_process_group(num_gpus_per_machine)
     if has_gpu:
         torch.cuda.set_device(local_rank) # ←直接分配CPU了
@@ -133,6 +130,9 @@ other codes
 推测新开进程与当前进程会不在一个进程里面，导致通配方案会直接覆盖不到训练进程，然后就又找cpu0去了。
 
 ## （长）Modified Pretrained，爱来自Deeplab
+
+> PyTorch的[官方源码](https://github.com/pytorch/vision/)
+{: .prompt-info }
 
 做到了把backbone替换成了自己构建的MobileNetV3，下一步的需求是引入一个预训练模型，以对标有`model_final_r50.pkl`的ResNet50。
 
@@ -169,7 +169,7 @@ class PretrainedMobileNetV3(Backbone):
             "res5": out_channels,
         }
 
-    #...
+    # ...
 ```
 
 然后一边跑的时候一边写文档，发现一个问题：我的目标是实例分割，这个weights不会是分类的吧？
@@ -247,7 +247,13 @@ class IntermediateLayerGetter(nn.ModuleDict):
 
 这个手术类返回的是OrderedDict，而非nn.Sequential，因此不兼容，问题解决。
 
-解决方案是将字典结构的层再转换为连续的Sequential模块，兼容Detectron2的Backbone接口。~~纯hack好脑瘫~~
+解决方案是将字典结构的层再转换回连续的nn.Sequential模块，来兼容Detectron2的Backbone接口。
+
+> 纯HACK好脑瘫
+>
+> ~~但是管他呢，能跑就行~~
+{: .prompt-warning }
+
 
 ```python
 from torchvision.models.segmentation import deeplabv3_mobilenet_v3_large
