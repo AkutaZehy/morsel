@@ -1,0 +1,104 @@
+---
+title: 鏖战mask2former
+date: 2025-04-12 12:00:00 +0800
+categories: [笔记, 编程]
+tags: [笔记, 编程, 深度学习, CUDA, 实例分割, detectron, DEBUG]
+description: 折磨了我整整一周的时间，进入编程领域至今处理的最棘手的问题...
+---
+
+> 感觉算是经验帖，以后可能可以作为自己DEBUG的范式了。
+{: .prompt-info }
+
+> 因为和实际工程挂钩，所以还暂时不能完整公开干了什么，就尽可能以替代的方式描述。后续如果论文发了中了再补个论文的链接。
+{: .prompt-warning }
+
+## 前言
+
+前情提要：
+
+[第一次使用Linux远程开发]({% post_url 2025-03-12-第一次使用Linux远程开发 %})
+
+[迎击mask2former]({% post_url 2025-04-06-迎击mask2former %})
+
+这个description可能是有点标题党了，对于很多人来说可能只是一个微不足道的小问题，但它确实也是我编程以来处理过的最棘手的问题，于是又单开了一篇文章来记录。
+
+### 一点题外话
+
+细究自己的编程史的话，大概是小学开始学turtle，初中还是高中接触了一点shell和VBasic，高中信赛学C结果初试被刷，一气之下自己把Java和JavaScript学了点基础。
+
+大一想学C没报上课只能学了Python，当年暑假把JavaSE完整看了一遍，JavaEE看到SSM三件套；大二大三到大学毕业都是接着Python这条路走机器学习和深度学习（学校开的专业课），碰到导师也是搞这个方向，直到毕设都是搞的这个。
+
+大学学的土木，毕业读研转了计，大学毕业到研究生开学这会，看的主要是网页这块，像Vue、Nuxt这块。研一上跟组里面干点杂货，组员带我写了React（ANT Design）。
+
+然后现在就是目前这个项目，和毕设那会的东西差不多还是深度学习。
+
+虽然遇到的麻烦问题不少，但是现在这个真给我恶心坏了。
+
+## BEFORE EVERYTHING GET STARTED
+
+### 需求描述
+
+也算是敏捷开发的一个迭代周期了。
+
+这一部分主要开发时间：2025-04-06至2025-04-12。
+
+> 用户故事：作为一个计算机视觉开发工程师（？我不是我没有），我希望能在数据类型中引入新的特征，以便更好地训练。
+
+是的，就是这样一条平平无奇的需求，非常直白。
+
+### 更具体些
+
+在正常情况下，一条语义分割的结果通常会包括labels（包含有完整label列表的概率分布）和masks（逐像素的遮罩概率分布）；在某些情况下，它还会带有bbox（可以由遮罩计算或者单独保存的，用于表征位置的图像框）；其中labels取最高概率，masks采用阈值或其他连通算法等，导出为最终的分割结果。
+
+对于标注数据，由于全部的信息已经由人工确定，因此label和mask被唯一确定。一个常见的标注数据类型是[COCO](https://cocodataset.org/)。
+
+COCO数据集现在有3种标注类型：object instances（目标实例，用于目标检测）, object keypoints（目标上的关键点，用于姿态估计）, and image captions（看图说话），其中目标检测即为目前项目的目标，其数据集标注的关键结构长下面这样：
+
+```json
+{
+    "info": info,
+    "licenses": [license],
+    "images": [image],
+    "annotations": annotation{
+        "id": int,
+        "image_id": int,
+        "category_id": int,               # 与下面的categories对应
+        "segmentation": RLE or [polygon], # RLE是一种压缩的方法
+        "area": float,
+        "bbox": [x, y, width, height],
+        "iscrowd": 0,                # 在Panoptic Segmentation（全景分割）下取1，在Instance Segmentation（实例分割）下取0
+    },
+    "categories": [category]
+}
+```
+
+这里的category_id就是label的确定值。
+
+现在的需求是扩展这里的label。例如：原本的label可能是常见的房子、车等，现在我希望它是**多个独立**的子类，像是：
+
+```json
+{
+  color: {
+    "red", "blue", "green"
+  },
+  size: {
+    "small", "medium", "large"
+  }
+}
+```
+
+并且，这个扩展类需要投入训练-预测的完整过程。
+
+### PLAN FIRST
+
+确定以以下的任务步骤完成本阶段的开发：
+
+- [x] 分解为可执行任务（本步）
+- [x] 开发环节
+  + [x] 明确数据格式
+  + [x] 分析原始构造路径
+  + [x] 开发
+    * [x] 数据导入
+    * [x] 新工作流模型构建
+    * [x] 测试
+- [x] 收尾
