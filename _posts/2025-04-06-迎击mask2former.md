@@ -1,9 +1,9 @@
 ---
-title: 鏖战mask2former
+title: 迎击mask2former
 date: 2025-04-06 12:00:00 +0800
 categories: [笔记, 编程]
-tags: [笔记, 编程, 深度学习, CUDA, 实例分割, detectron]
-description: detectron2阴魂不散，带上GPT鏖战mask2former...
+tags: [笔记, 编程, 深度学习, CUDA, 实例分割, detectron, DEBUG]
+description: detectron2阴魂不散，带上GPT迎击mask2former...
 ---
 
 前情提要：
@@ -14,6 +14,10 @@ description: detectron2阴魂不散，带上GPT鏖战mask2former...
 
 > 请善用导航，本文内容特别长。
 {: .prompt-info }
+
+后来发现了一个极为棘手的问题，请移步：
+
+[鏖战mask2former](% post_url 2025-04-12-鏖战mask2former %)
 
 ## 关于detectron2的一点碎碎念
 
@@ -290,3 +294,9 @@ class PretrainedMobileNetV3(Backbone):
 
     # ...
 ```
+
+不过貌似pretrained效果不太好，但是设置为False（不使用pretrained）也很糟，还在排查中...
+
+~~难不成是PyTorch官方下毒？~~
+
+（未完待续）
