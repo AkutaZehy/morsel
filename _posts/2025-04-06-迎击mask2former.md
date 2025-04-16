@@ -17,7 +17,7 @@ description: detectron2阴魂不散，带上GPT迎击mask2former...
 
 后来发现了一个极为棘手的问题，请移步：
 
-[鏖战mask2former](% post_url 2025-04-12-鏖战mask2former（一） %)
+[鏖战mask2former]({% post_url 2025-04-12-鏖战mask2former（一） %})
 
 ## 关于detectron2的一点碎碎念
 
