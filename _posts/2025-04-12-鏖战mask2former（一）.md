@@ -24,7 +24,7 @@ description: 折磨了我整整一周的时间，进入编程领域至今处理�
 
 按照开发周期（一周）来进行记录，（一）记录的是第一周的内容，主要包括了整个新模型构建到运行的阶段。
 
-下一篇见[鏖战mask2former（二）]({% post_url 2025-04-19-鏖战mask2former（二） %})
+<!-- 下一篇见[鏖战mask2former（二）]({% post_url 2025-04-19-鏖战mask2former（二） %}) -->
 
 ### 一点题外话
 
@@ -443,4 +443,4 @@ class CustomMultiScaleMaskedTransformerDecoder(MultiScaleMaskedTransformerDecode
 
 后面等待着我的是...
 
-[鏖战mask2former（二）]({% post_url 2025-04-19-鏖战mask2former（二） %})
+<!-- [鏖战mask2former（二）]({% post_url 2025-04-19-鏖战mask2former（二） %}) -->
