@@ -225,12 +225,63 @@ class MSDeformAttnPixelDecoder(nn.Module):
 
 resnet的out_features=[256, 512, 1024, 2048]，而swin的out_features=[96, 192, 384, 768]。通过对上述代码的分析，其又经过了lateral_conv和output_conv的步骤，使得最终的每一层结果被固定转换到conv_dim=256，再进入后续的transformer decoder流程。
 
-那么其对于输入，理论上只要能匹配上res2~res5的多级结构就应该可以完成后续的训练，不需要任额外的转换；而我自己的代码却做了强制转换到features=112才能运行，需要排查其他原因的问题。
+那么其对于输入，理论上只要能匹配上res2~res5的多级结构就应该可以完成后续的训练，不需要任额外的转换；而我自己的代码却做了强制转换到features=112才能运行，而且效果相对较差，需要排查其他原因的问题。
 
-> 测试的结果表明，事实上，“直接使用新backbone的内容，只移除掉最后的classification层”的做法没出任何问题。
+> 如果你比我对数字敏感的话，那么这里你应该可以看出来问题出在哪里。
+>
+> 往下看，看看你猜对了没：
 {: .prompt-info }
 
-完整的可运行继承实现如下：
+报错点在以下位置：
+
+```python
+@SEM_SEG_HEADS_REGISTRY.register()
+class MSDeformAttnPixelDecoder(nn.Module):
+    # ...
+
+    @autocast(enabled=False)
+    def forward_features(self, features):
+        srcs = []
+        pos = []
+
+        # Reverse feature maps into top-down order (from low to high resolution)
+        for idx, f in enumerate(self.transformer_in_features[::-1]):
+            x = features[f].float()  # deformable detr does not support half precision
+            srcs.append(self.input_proj[idx](x)) # 报错在这一行
+            pos.append(self.pe_layer(x))
+        
+        #...
+```
+
+检查这里的features，得到：
+
+```python
+torch.Size([1, 24, 336, 200])
+torch.Size([1, 40, 168, 100])
+torch.Size([1, 80, 84, 50])
+torch.Size([1, 112, 84, 50])
+```
+
+作为对照，resnet的输出为：
+```python
+torch.Size([1, 256, 160, 160])
+torch.Size([1, 512, 80, 80])
+torch.Size([1, 1024, 40, 40])
+torch.Size([1, 2048, 20, 20])
+```
+
+这里出现一个怪异的问题，我明明设置的out_features=[24, 40, 80, 160]，为什么得到的out_features=[24, 40, 80, 112]？
+
+经过逐层的检查，最后还是回到了mobilenetv3，打印了Torch中mobilenetv3-large的各层次。
+
+它共包含有20层。以[channel, scale]来记，层2-3为[16, 1/2]，层4-5为[24, 1/4]，层6-8为[40, 1/8]，层9-12为[80, 1/16]，层13-14为[112, 1/16]，层15-17为[160, 1/32]，层18-20为最后分类的层。
+
+> 所以，还是太相信AI导致的了。
+{: .prompt-warning }
+
+mobilenetv3没有像resnet那样的res1-res5，而是这样的bottleneck块。交给AI时错误地把112层（13-14）作为了层5。而根据通道翻倍尺寸长宽折半的原则，为了提取到160，要往下额外提取一级。最终枚举出res2-res5应该是层5、8、12、17，而在先前的代码中错误地选为了5、8、12、14。
+
+最终形成的完整可训练架构如下：
 
 ```python
 @BACKBONE_REGISTRY.register()
@@ -269,14 +320,14 @@ class D2PretrainedMobileNetV3(Backbone):
         assert x.dim() == 4, f"MobileNetV3 takes an input of shape (N, C, H, W). Got {x.shape} instead!"
         outputs = {}
         for i, layer in enumerate(self.features):
-            x = layer(x)
-            if i == 2:  # res2
+            x = layer(x) # 下面的数要+2才会对应上原始的层次
+            if i == 3:  # res2
                 outputs["res2"] = x
-            elif i == 4:  # res3
+            elif i == 6:  # res3
                 outputs["res3"] = x
-            elif i == 7:  # res4
+            elif i == 10:  # res4
                 outputs["res4"] = x
-            elif i == 12:  # res5
+            elif i == 15:  # res5
                 outputs["res5"] = x
         return outputs
 
@@ -293,9 +344,14 @@ class D2PretrainedMobileNetV3(Backbone):
         return 32
 ```
 
-而112的问题来自于我mobilenetv3的实现写错了，具体来说是层次取错了。
+这个问题顺利解决。
 
-层次对应关系正确的状态下，out_features=[24, 40, 80, 160]，而先前的版本错误的写了out_features=[16, 24, 40, 160]，这四个值是取了res1~res3、res5。
+> 那你肯定要问了，为什么这么简单一个问题早没看出来。
+>
+> 事实上就是，报错隔得确实特别远，即便在backbone写错，根本不会报在backbone的问题。
+> 
+> 加上对数字确实太不敏感了。
+{: .prompt-info }
 
 ### 再探Criterion
 
