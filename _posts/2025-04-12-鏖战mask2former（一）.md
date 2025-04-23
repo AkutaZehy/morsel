@@ -243,9 +243,9 @@ if self.zero_grad_before_forward:
                 losses = sum(loss_dict.values())       # 报错在这但显然不是它的锅
 ```
 
-这里根据config里面写的整合规则，逻辑上可以得出`self.model=MultiTaskMaskFormer(MaskFormer)`，追溯到自己实现的`multitask_maskformer.py`（Meta-Arch件）。
+这里根据config里面写的整合规则，逻辑上可以得出`self.model=MultiTaskMaskFormer(MaskFormer)`，追溯到自己实现的Meta-Arch件。
 
-怀疑是不是loss的实现有问题，又去看了`multicriterion.py`（Criterion件），加了测试方法输出，但是loss里面输出全是一维tensor的情况下，依然会出现sum有不是一维tensor而报错。
+怀疑是不是loss的实现有问题，又去看了自己重写的Criterion件，加了测试方法输出，但是loss里面输出全是一维tensor的情况下，依然会出现sum有不是一维tensor而报错。
 
 最后忍无可忍动底层把`train_loop.py`改了测试，发现会莫名其妙多出来非一维tensor，就是把额外标的label的矩阵结果也当loss返回了。
 
@@ -319,7 +319,7 @@ __call__ : Callable[..., Any] = _call_impl
             return processed_results
 ```
 
-而我在我的`multitask_maskformer.py`里面没有考虑训练态，一律返的一般结果，这就导致了预测结果的错误嵌入和使用。
+而我在我的maskformer重写里面没有考虑训练态，一律返的一般结果，这就导致了预测结果的错误嵌入和使用。
 
 其实是一个很明显的问题，但是因为时间太紧基础不行，用AI辅助完全就没注意到这个问题，一开始光看到最后的输出一样就没管了，很长了一点教训。
 
