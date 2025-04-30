@@ -381,4 +381,4 @@ class D2PretrainedMobileNetV3(Backbone):
 
 后面等待着我的是...
 
-[总结篇！]({% 2025-04-30-2504项目总结 %})
+[鏖战mask2former（三）]({% post_url 2025-04-23-鏖战mask2former（三） %})
