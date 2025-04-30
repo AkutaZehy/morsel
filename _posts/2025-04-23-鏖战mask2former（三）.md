@@ -358,7 +358,7 @@ class MultiTaskMaskFormer(MaskFormer):
             return processed_results
 ```
 
-仔细看了实在没绷住，注释都写的是`from decoder output`，怎么输入是`query_feat.weight`（很明显图片不同的条件下也依旧是个定值）。
+仔细看了实在没绷住。AI自己注释都写的是`from decoder output`，输入却是`query_feat.weight`。也就是说，它把模型自己的权重信息（weight）直接接到了subcat_embed，而完全没有考虑图片的特征，这结果能变才怪了。
 
 > 本来是偷懒让AI照着logits部分抄的（因为结构差不多），看样子是抄也抄不会了。
 >
@@ -408,6 +408,11 @@ class MultiTaskMaskFormer(MaskFormer):
 
             return processed_results
 ```
+
+> 回过头来看感觉还挺微妙的。
+>
+> 也就是说，整个代码的逻辑其实已经崩掉了，但是由于train和val两个阶段是分开的，被框架救了一命，AI犯下的错误不至于让我整个训练都报废了。
+{: .prompt-info }
 
 ## 第三阶段
 
@@ -611,4 +616,4 @@ class COCOeval:
 
 再写一篇总结篇总结一下吧：
 
-[总结篇！]({% 2025-04-30-2504项目总结 %})
+[总结篇！]({% post_url 2025-04-30-2504项目总结 %})
