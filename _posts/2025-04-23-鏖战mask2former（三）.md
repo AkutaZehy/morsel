@@ -3,7 +3,7 @@ title: 鏖战mask2former（三）
 date: 2025-04-23 12:00:00 +0800
 categories: [笔记, 编程]
 tags: [笔记, 编程, 深度学习, CUDA, 实例分割, detectron, DEBUG]
-description: 事情变得越发麻烦起来...
+description: 又是经典的一句BUG改了一周系列...
 ---
 
 > 感觉算是经验帖，以后可能可以作为自己DEBUG的范式了。
