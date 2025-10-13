@@ -106,7 +106,6 @@ social_preview_image: # string, local or CORS resources
 
 # boolean type, the global switch for TOC in posts.
 toc: true
-toc_levels: 1..4
 
 comments:
   # Global switch for the post-comment system. Keeping it empty means disabled.
