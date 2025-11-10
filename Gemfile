@@ -2,8 +2,8 @@
 
 source "https://rubygems.org"
 
-# gem "jekyll-theme-chirpy", "~> 7.2", ">= 7.2.4"
-gem "jekyll-remote-theme"
+gem "jekyll-theme-chirpy", "~> 7.2", ">= 7.2.4"
+# gem "jekyll-remote-theme"
 
 gem "html-proofer", "~> 5.0", group: :test
 
@@ -14,4 +14,4 @@ end
 
 gem "wdm", "~> 0.2.0", :platforms => [:mingw, :x64_mingw, :mswin]
 
-# gem "jekyll-sass-converter", "~> 3.0.0"
+gem "jekyll-sass-converter", "~> 3.0.0"
