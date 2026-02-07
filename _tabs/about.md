@@ -13,3 +13,7 @@ Morsel，意为零嘴、小零食。
 - 个人日志（自2025-12-18开始的）。
 
 左下角的RSS并不推荐使用。虽然我并没有用过RSS，考虑到这个站点的开发比较混乱，可能会产生大量RSS消息。
+
+另外映像鉴赏友站绝赞广告位招租中（并不）：
+
+- [Gasdyueer的静止系MAD推荐](https://gasdyueer.github.io/JingMAD-website/)
