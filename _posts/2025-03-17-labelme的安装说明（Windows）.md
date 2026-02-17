@@ -1,7 +1,7 @@
 ---
 title: labelme的安装说明（Windows）
 date: 2025-03-17 12:00:00 +0800
-categories: [笔记, 编程]
+categories: [笔记, 开发]
 tags: [笔记, 编程, 深度学习]
 description: Python的依赖管理过于恶心，实在是不想多说...
 ---

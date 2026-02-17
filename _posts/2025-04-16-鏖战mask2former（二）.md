@@ -1,7 +1,7 @@
 ---
 title: 鏖战mask2former（二）
 date: 2025-04-16 12:00:00 +0800
-categories: [笔记, 编程]
+categories: [笔记, 开发]
 tags: [笔记, 编程, 深度学习, CUDA, 实例分割, detectron, DEBUG]
 description: 事情变得越发麻烦起来...
 ---

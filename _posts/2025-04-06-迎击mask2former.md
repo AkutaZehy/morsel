@@ -1,7 +1,7 @@
 ---
 title: 迎击mask2former
 date: 2025-04-06 12:00:00 +0800
-categories: [笔记, 编程]
+categories: [笔记, 开发]
 tags: [笔记, 编程, 深度学习, CUDA, 实例分割, detectron, DEBUG]
 description: detectron2阴魂不散，带上GPT迎击mask2former...
 ---
