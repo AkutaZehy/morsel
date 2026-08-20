@@ -1,7 +1,24 @@
 ---
 title: OpenCode Desktop 与 OMO 插件排障记录
+title: OpenCode Desktop 与 OMO 插件排障记录
 date: 2026-05-06 0:00:00 +0800
 categories: [笔记, 开发]
+<<<<<<< HEAD:_posts/2026-05-06-OpenCodeDesktop与OMO插件排障记录.md
+tags:
+  [
+    笔记,
+    编程,
+    opencode,
+    OMO,
+    排障,
+    Windows,
+    Electron,
+    Tauri,
+    DeepSeek v4,
+    vibe coding,
+  ]
+description: 记录 OpenCode Desktop 更新后 OMO 插件失效的定位过程与运行时兼容性结论。
+=======
 tags: [笔记, 编程, opencode, OMO, 排障, Windows, Electron, Tauri, DeepSeek v4, vibe coding]
 description: 记录 OpenCode Desktop 更新后 OMO 插件失效的定位过程与运行时兼容性结论。
 ---
@@ -10,7 +27,7 @@ description: 记录 OpenCode Desktop 更新后 OMO 插件失效的定位过程�
 
 在长期使用了 Opencode Desktop v1.14.29 配合[oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)（以下简称 OMO）插件后，发现 OMO 会频繁出现 subagent 调用 GPT-5 Nano 而非原 selection Minimax M2.7，非常头疼。把 Opencode Desktop 用自带的上游更新包更新到 v1.14.39，起初默认安装位置没有定到自己的路径下还没有太在意，但后来 OMO 插件反复卸了重装还未生效。
 
-和金山的工程师 [Beacon](https://github.com/beacon1096) 一起调试了两个小时，诡异的事情一波三折，真相也逐渐露出水面...
+和前金山的工程师 [Beacon](https://github.com/beacon1096) 一起调试了两个小时，诡异的事情一波三折，真相也逐渐露出水面...
 
 本文记录整个排查过程和最终结论。整个过程都在 opencode 上推进，使用 DeepSeek V4 Pro 辅助跟踪系统文件、比对日志差异、分析进程命令行参数。
 
@@ -22,21 +39,22 @@ Opencode Desktop 更新到 v1.14.39 后，OMO 彻底不工作了。怎么重装�
 
 于是直接在 opencode 对话里让它自行排查——第一个关键发现是：
 
-| 组件 | 版本 |
-|---|---|
-| `OpenCode.exe`（Desktop 壳） | 1.14.39 |
+| 组件                                 | 版本        |
+| ------------------------------------ | ----------- |
+| `OpenCode.exe`（Desktop 壳）         | 1.14.39     |
 | `opencode-cli.exe`（捆绑的 sidecar） | **1.14.29** |
 
 Desktop 的自动更新只更新了 GUI 壳，没有同步更新它内嵌的 CLI sidecar。当时它给出的结论是"插件 API 版本不兼容"，建议手动升级 CLI。虽然 `opencode upgrade` 因为交互式提示而卡死，但这个发现引出了一个更关键的问题——
 
 > 为什么 Desktop 的更新流程会漏掉 CLI？
-{: .prompt-info }
+> {: .prompt-info }
 
 ### 第二阶段：定位架构变更
 
 顺着 CLI 不同步的线索查下去，发现了一件关键的事情：v1.14.34 这一版 Opencode Desktop 进行了一次重大架构变更——**从 Tauri 换到了 Electron**。同时，上游不再将 CLI 二进制随 Desktop 一起分发，`opencode-cli.exe` 从此和 Desktop 分家。
 
 这意味着：
+
 - v1.14.34 之前：Desktop 基于 Tauri，附带独立的 CLI 二进制（支持 Bun 运行时）
 - v1.14.34 之后：Desktop 基于 Electron，sidecar 改由 `app.asar` 内的 Node.js 进程提供，不再依赖外部 CLI；CLI 单独提供下载
 
@@ -56,7 +74,7 @@ Desktop 的自动更新只更新了 GUI 壳，没有同步更新它内嵌的 CLI
 Desktop sidecar 的日志位于 `~\.local\share\opencode\log\`。找到最近一次启动日志：
 
 ```
-ERROR service=plugin path=oh-my-openagent 
+ERROR service=plugin path=oh-my-openagent
   target=file:///C:/Users/Akuta/.cache/opencode/packages/oh-my-openagent@latest/...
   error=Cannot destructure property 'spawn' of 'globalThis.Bun' as it is undefined.
   failed to load plugin
@@ -70,10 +88,10 @@ INFO service=plugin path=oh-my-openagent loading plugin
 
 这就全通了。
 
-| 运行时 | Bun 支持 | oh-my-openagent |
-|---|---|---|
-| CLI v1.14.37（winget standalone 二进制） | 内置 | 正常加载 |
-| Desktop v1.14.39 sidecar（app.asar 内 Node.js 进程） | 无 | `globalThis.Bun` 为 `undefined`，抛异常 |
+| 运行时                                               | Bun 支持 | oh-my-openagent                         |
+| ---------------------------------------------------- | -------- | --------------------------------------- |
+| CLI v1.14.37（winget standalone 二进制）             | 内置     | 正常加载                                |
+| Desktop v1.14.39 sidecar（app.asar 内 Node.js 进程） | 无       | `globalThis.Bun` 为 `undefined`，抛异常 |
 
 也解释了为什么反复卸了重装都没用：**配置文件是对的、模型配置是对的、插件包也下载到了缓存目录——但 deserialize JS 模块的第一步就崩了。** Desktop 的绿灯只检查 `oh-my-openagent.json` 文件是否存在，不校验 `dist/index.js` 是否求值成功。
 
@@ -113,6 +131,7 @@ INFO service=plugin path=oh-my-openagent loading plugin
 
 以前其实一直都用的 MiniMax M2.7 作为 Agent 主力（毕竟便宜），最近 DeepSeek 憋了很久的大招 v4 Pro 放了出来。本来想着没 coding plan 还挺贵，但最近正巧打折就充了 50，这次也算是好好体验了一把。算个总账的话共计 36M token（缓存命中 34.90M，未命中 0.99M，输出 0.15M），开销 4.8 块，两瓶可乐钱。开始修的时候 Beacon 还信心十足说 vibe 修服务器都只要了两块钱按说应该还好相信 DeepSeek 的实力，结果俩人加一 Agent 愣是折腾俩小时，最终因为是上游问题遗憾退场——修 Windows 上的玩意可比修 Linux 服务器难多了。
 
+我觉得现阶段肯定还是有一些问题 AI 解决不了，大可不必把 LLM 吹到 AGI 那种程度。不过话又说回来，日志这种东西人还是很难看，搞了半天，还是不得不拿着 AI 工具读 AI 写的日志，查 AI 自己遗留的注册表和 winget 残留，最后发现，问题源于 AI 工具自身的架构变更，导致插件无法正常工作：如果后续更新仍以这种大幅度调整为主，维护成本会明显上升。这个过程也提醒我，AI 工具链本身同样需要版本管理和回退方案。——我于是又想起来前段时间看的一段很令人悲伤的话：
 我觉得现阶段肯定还是有一些问题 AI 解决不了，大可不必把 LLM 吹到 AGI 那种程度。不过话又说回来，日志这种东西人还是很难看，搞了半天，还是不得不拿着 AI 工具读 AI 写的日志，查 AI 自己遗留的注册表和 winget 残留，最后发现，问题源于 AI 工具自身的架构变更，导致插件无法正常工作：如果后续更新仍以这种大幅度调整为主，维护成本会明显上升。这个过程也提醒我，AI 工具链本身同样需要版本管理和回退方案。——我于是又想起来前段时间看的一段很令人悲伤的话：
 
 > 有些人或许已经被 AI 巨头的鼓动吓得不敢停下脚步，而我们未来的工作，或许将围绕“给 AI 擦屁股”来展开了。
