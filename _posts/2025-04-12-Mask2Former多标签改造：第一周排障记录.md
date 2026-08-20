@@ -1,9 +1,9 @@
 ---
-title: 鏖战mask2former（一）
+title: Mask2Former 多标签改造：第一周排障记录
 date: 2025-04-12 12:00:00 +0800
 categories: [笔记, 开发]
 tags: [笔记, 编程, 深度学习, CUDA, 实例分割, detectron, DEBUG]
-description: 折磨了我整整一周的时间，进入编程领域至今处理的最棘手的问题...
+description: 记录 Mask2Former 多标签数据流、模型组件改造及训练阶段的典型排障过程。
 ---
 
 > 感觉算是经验帖，以后可能可以作为自己DEBUG的范式了。
@@ -18,13 +18,13 @@ description: 折磨了我整整一周的时间，进入编程领域至今处理�
 
 [第一次使用Linux远程开发]({% post_url 2025-03-12-第一次使用Linux远程开发 %})
 
-[迎击mask2former]({% post_url 2025-04-06-迎击mask2former %})
+[Mask2Former 开发排障记录]({% post_url 2025-04-06-Mask2Former开发排障记录 %})
 
 这个description可能是有点标题党了，对于很多人来说可能只是一个微不足道的小问题，但它确实也是我编程以来处理过的最棘手的问题，于是又单开了一篇文章来记录。
 
 按照开发周期（一周）来进行记录，（一）记录的是第一周的内容，主要包括了整个新模型构建到运行的阶段。
 
-下一篇见[鏖战mask2former（二）]({% post_url 2025-04-16-鏖战mask2former（二） %})
+下一篇见[Mask2Former 多标签改造：第二周排障记录]({% post_url 2025-04-16-Mask2Former多标签改造：第二周排障记录 %})
 
 > 请善用导航，本文内容特别长。
 {: .prompt-info }
@@ -39,7 +39,7 @@ description: 折磨了我整整一周的时间，进入编程领域至今处理�
 
 然后现在就是目前这个项目，和毕设那会的东西差不多还是深度学习。
 
-虽然遇到的麻烦问题不少，但是现在这个真给我恶心坏了。
+虽然此前遇到过不少问题，但这次的工程复杂度确实超出了预期。
 
 ## BEFORE EVERYTHING GET STARTED
 
@@ -325,7 +325,7 @@ __call__ : Callable[..., Any] = _call_impl
 
 #### How to Inheritance in Python?
 
-> 我个人不是一般地讨厌Python，尤其是它的面向对象让这门语言的恶心程度上升到了一个新的境界。
+> 这次经历也让我重新审视 Python，尤其是其面向对象机制在大型工程中的使用体验。
 {: .prompt-warning }
 
 这次是被Python的面向对象上了一课。
@@ -439,7 +439,7 @@ class CustomMultiScaleMaskedTransformerDecoder(MultiScaleMaskedTransformerDecode
 
 而且由于这玩意和Meta-Arch中的有一小块有联携，其父类参数没有明确指定（用的`kwargs.pop()`），还有一些来自于各种各样的装饰器的成员变量导致参数的遮盖等问题，实际上上面这个还是没有跑通。
 
-**最后完整把父类抄了一遍**，真被Python这个气笑了。
+**最后完整复制并改写了父类实现**，也再次体会到 Python 继承结构在这里带来的维护成本。
 
 ## 收尾
 
@@ -451,4 +451,4 @@ class CustomMultiScaleMaskedTransformerDecoder(MultiScaleMaskedTransformerDecode
 
 后面等待着我的是...
 
-[鏖战mask2former（二）]({% post_url 2025-04-16-鏖战mask2former（二） %})
+[Mask2Former 多标签改造：第二周排障记录]({% post_url 2025-04-16-Mask2Former多标签改造：第二周排障记录 %})

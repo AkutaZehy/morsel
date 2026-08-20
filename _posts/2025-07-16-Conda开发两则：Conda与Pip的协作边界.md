@@ -1,9 +1,9 @@
 ---
-title: Conda开发两则
+title: Conda 开发两则：Conda 与 Pip 的协作边界
 date: 2025-07-16 12:00:00 +0800
 categories: [笔记, 开发]
 tags: [笔记, 编程, 深度学习, python, conda]
-description: 和Python相处是一个非常血压高的话题，这次要分享的是Conda的两则内容...
+description: 通过 Sat-NeRF 的 GDAL 依赖问题，说明 Conda 与 Pip 混用时的版本和系统库风险。
 ---
 
 [conda](https://anaconda.org/anaconda/conda)是一个集成了包管理和环境管理功能的工具，支持在不同操作系统（如Windows、macOS和Linux）上创建独立的Python环境，并安装包括Python包和系统级依赖（如C库）的软件包。conda拥有自己的包格式和仓库（如Anaconda和conda-forge），可以自动处理复杂的依赖关系，适用于需要稳定、可重复的软件环境的科研、数据分析、机器学习等场景。

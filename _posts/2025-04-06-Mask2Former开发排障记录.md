@@ -1,9 +1,9 @@
 ---
-title: 迎击mask2former
+title: Mask2Former 开发排障记录
 date: 2025-04-06 12:00:00 +0800
 categories: [笔记, 开发]
 tags: [笔记, 编程, 深度学习, CUDA, 实例分割, detectron, DEBUG]
-description: detectron2阴魂不散，带上GPT迎击mask2former...
+description: 记录 Detectron2/Mask2Former 项目中的 CUDA、GPU 选择与预训练骨干适配问题。
 ---
 
 前情提要：
@@ -17,21 +17,19 @@ description: detectron2阴魂不散，带上GPT迎击mask2former...
 
 后来发现了一个极为棘手的问题，请移步：
 
-[鏖战mask2former]({% post_url 2025-04-12-鏖战mask2former（一） %})
+[Mask2Former 多标签改造：第一周排障记录]({% post_url 2025-04-12-Mask2Former多标签改造：第一周排障记录 %})
 
 ## 关于detectron2的一点碎碎念
 
-看到服务器上的环境说真的眼前一黑，来自facebook的经典[Detectron2框架](https://github.com/facebookresearch/detectron2)。
+看到服务器上的环境时，我对这个经典的 [Detectron2 框架](https://github.com/facebookresearch/detectron2)有些谨慎。
 
-本科的时候当时是做UNet和Mask R-CNN，后者就是用的这个框架，跑模型性能差时间长，还难改的一比，最后Down掉了用的UNet，对这个框架有心理阴影了。现在又要用这个，心里默念这个框架是真的阴魂不散。
-
-当然这次不是用的完完全全的就这个框架就完了，实际上用的[Mask2Former](https://github.com/facebookresearch/Mask2Former)，这个框架是打底子了。
+这次使用的是 [Mask2Former](https://github.com/facebookresearch/Mask2Former)，Detectron2 为其提供了基础框架。
 
 这里Former就是Transformer，QKV那一套，本科的时候也接触过，当时是做弱监督用，然而也是时间长效果差最后也没做下去了。
 
-老实说这次能不能搞定这个项目心里真的没底，没辙硬着头皮做吧。
+这次能否顺利完成还不确定，因此我先从环境和最小流程开始逐项确认。
 
-## 脑溢血的CUDA环境
+## 棘手的 CUDA 环境
 
 Detectron2这个框架对CUDA版本的要求相当严格，深度学习搭环境的老毛病了。
 
@@ -58,15 +56,15 @@ cd mask2former/modeling/pixel_decoder/ops
 sh make.sh
 ```
 
-我自己尝试了一下本地部署，直接卡在`sh make.sh`这里，C我根本没学过，报一大堆啥玩意我也看不懂。后来才发现环境要求有一条是`Linux or macOS with Python ≥ 3.6`，我本地是Windows，所以直接放弃了。
+我尝试在本地部署，执行到 `sh make.sh` 时遇到了 C/CUDA 扩展构建错误；随后确认文档要求 Linux 或 macOS，而本地环境是 Windows，因此把编译和训练转移到服务器上。
 
 服务器那边是Linux倒没问题，队友跟我说eval没问题，自己跑也确实没问题。
 
-但是到了train和inference的时候就开始各种报错，还是C的，没办法丢给deepseek了，最后定位到：
+但是到了 train 和 inference 阶段又出现了 C/CUDA 相关报错。我结合错误信息和 AI 辅助逐步定位，最后回到下面这条 PyTorch 安装命令：
 
 `conda install pytorch==1.9.0 torchvision==0.10.0 cudatoolkit=11.1 -c pytorch -c nvidia`
 
-这里的cudatoolkit是11.1，nvidia-smi显示服务器上的卡是CUDA 12.0，所以肯定是不兼容的。
+这里的 PyTorch 包绑定了 cudatoolkit 11.1，而 `nvidia-smi` 显示的是驱动支持的 CUDA 兼容能力（12.0），并不等同于系统安装的 toolkit 版本。为减少扩展编译和运行时的不确定性，我改用了已验证可用的 11.7 组合。
 
 此外，系统的CUDA_HOME的值是空的，需要手动设一下值，也算是复习vi了。
 
@@ -92,7 +90,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_HOME/lib64
 
 使用了`conda install pytorch==1.13.1 torchvision==0.14.1 cudatoolkit=11.7 -c pytorch -c nvidia`。
 
-这个包有一说一下的是真的慢。
+这个包的下载和安装速度比较慢。
 
 完成安装之后，重新走一遍流程，在`sh make.sh`前要手动`rm -rf build`清一下缓存。
 
@@ -106,9 +104,9 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_HOME/lib64
 * To run __on cpu__, add `MODEL.DEVICE cpu` after `--opts`.
 ```
 
-然而并没有什么卵用。
+直接设置后仍未达到预期。
 
-尝试了通配的`CUDA_VISIBLE_DEVICES=2,3 python3 xxx.py`似乎也没效果，一看还是在cpu0上面。
+官方文档的示例没有覆盖我使用的分布式启动方式。尝试设置 `CUDA_VISIBLE_DEVICES=2,3 python3 xxx.py` 后仍未达到预期，观察进程后发现程序仍使用了 cpu0。
 
 最后在[Stack Overflow](https://stackoverflow.com/questions/39649102/how-do-i-select-which-gpu-to-run-a-job-on)上面找到的结果。Github上也有对应的[Issue](https://github.com/facebookresearch/detectron2/issues/210)。
 
@@ -126,12 +124,10 @@ def _distributed_worker(*args,**kargs):
 # ...
     comm.create_local_process_group(num_gpus_per_machine)
     if has_gpu:
-        torch.cuda.set_device(local_rank) # ←直接分配CPU了
+        torch.cuda.set_device(local_rank) # 按 local_rank 设置当前 GPU
 ```
 
-默认使用分布式，且默认自己分配CPU，无语了。
-
-推测新开进程与当前进程会不在一个进程里面，导致通配方案会直接覆盖不到训练进程，然后就又找cpu0去了。
+在我使用的 launch/多进程配置下，训练进程会按 `local_rank` 重新选择设备；如果环境变量没有在启动子进程前生效，就可能出现设备选择与预期不一致的情况。
 
 ## （长）Modified Pretrained，爱来自Deeplab
 
@@ -180,7 +176,7 @@ class PretrainedMobileNetV3(Backbone):
 
 一看[说明文档](https://pytorch.org/vision/main/models.html)，果不其然，这个weights拿IMAGENET1K_V1训的。
 
-与之相匹配的，用于semantic segmentation（实例分割）任务的是`DeepLabV3_MobileNet_V3_Large_Weights.COCO_WITH_VOC_LABELS_V1`。
+与目标任务更接近的是语义分割权重 `DeepLabV3_MobileNet_V3_Large_Weights.COCO_WITH_VOC_LABELS_V1`。不过 DeepLabV3 是语义分割模型；在本项目中，我只借用其中的 backbone 权重进行特征初始化，并不能把它等同于实例分割权重。
 
 它的全类名是`torchvision.models.segmentation.deeplabv3_mobilenet_v3_large`，很显然，和`torchvision.models.mobilenet_v3_large`对不上层级，盲猜直接改要出事。
 
@@ -253,9 +249,7 @@ class IntermediateLayerGetter(nn.ModuleDict):
 
 解决方案是将字典结构的层再转换回连续的nn.Sequential模块，来兼容Detectron2的Backbone接口。
 
-> 纯HACK好脑瘫
->
-> ~~但是管他呢，能跑就行~~
+> 这是为兼容 Detectron2 Backbone 接口而增加的适配层，属于工程性折中；后续仍应补充接口测试。
 {: .prompt-warning }
 
 
@@ -295,8 +289,6 @@ class PretrainedMobileNetV3(Backbone):
     # ...
 ```
 
-不过貌似pretrained效果不太好，但是设置为False（不使用pretrained）也很糟，还在排查中...
-
-~~难不成是PyTorch官方下毒？~~
+目前无论使用预训练还是不使用预训练，效果都未达到预期，仍需从数据、损失、初始化和评估流程继续排查。
 
 （未完待续）

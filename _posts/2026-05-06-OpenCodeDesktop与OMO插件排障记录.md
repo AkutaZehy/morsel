@@ -1,9 +1,9 @@
 ---
-title: Opencode巧施连环计，调试强绷俩小时
+title: OpenCode Desktop 与 OMO 插件排障记录
 date: 2026-05-06 0:00:00 +0800
 categories: [笔记, 开发]
 tags: [笔记, 编程, opencode, OMO, 排障, Windows, Electron, Tauri, DeepSeek v4, vibe coding]
-description: 唯鱼和熊掌不可兼得矣，Windows：我打Tauri，真的假的...
+description: 记录 OpenCode Desktop 更新后 OMO 插件失效的定位过程与运行时兼容性结论。
 ---
 
 ## 背景
@@ -113,6 +113,6 @@ INFO service=plugin path=oh-my-openagent loading plugin
 
 以前其实一直都用的 MiniMax M2.7 作为 Agent 主力（毕竟便宜），最近 DeepSeek 憋了很久的大招 v4 Pro 放了出来。本来想着没 coding plan 还挺贵，但最近正巧打折就充了 50，这次也算是好好体验了一把。算个总账的话共计 36M token（缓存命中 34.90M，未命中 0.99M，输出 0.15M），开销 4.8 块，两瓶可乐钱。开始修的时候 Beacon 还信心十足说 vibe 修服务器都只要了两块钱按说应该还好相信 DeepSeek 的实力，结果俩人加一 Agent 愣是折腾俩小时，最终因为是上游问题遗憾退场——修 Windows 上的玩意可比修 Linux 服务器难多了。
 
-我觉得现阶段肯定还是有一些问题 AI 解决不了，大可不必把 LLM 吹到 AGI 那种程度。不过话又说回来，日志这种东西人还是很难看，搞了半天，还是不得不拿着 AI 工具读 AI 写的日志，查 AI 自己遗留的注册表和 winget 残留，最后发现是 AI 工具自己的架构变更把 AI 的插件给搞崩了：如果它的更新也有大幅度 vibe，那就真的很难绷得住了——Opencode 巧施连环计，把大伙全坑进去了。——我于是又想起来前段时间看的一段很令人悲伤的话：
+我觉得现阶段肯定还是有一些问题 AI 解决不了，大可不必把 LLM 吹到 AGI 那种程度。不过话又说回来，日志这种东西人还是很难看，搞了半天，还是不得不拿着 AI 工具读 AI 写的日志，查 AI 自己遗留的注册表和 winget 残留，最后发现，问题源于 AI 工具自身的架构变更，导致插件无法正常工作：如果后续更新仍以这种大幅度调整为主，维护成本会明显上升。这个过程也提醒我，AI 工具链本身同样需要版本管理和回退方案。——我于是又想起来前段时间看的一段很令人悲伤的话：
 
 > 有些人或许已经被 AI 巨头的鼓动吓得不敢停下脚步，而我们未来的工作，或许将围绕“给 AI 擦屁股”来展开了。
