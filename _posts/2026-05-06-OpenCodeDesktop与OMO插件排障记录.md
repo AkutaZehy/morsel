@@ -1,9 +1,7 @@
 ---
 title: OpenCode Desktop 与 OMO 插件排障记录
-title: OpenCode Desktop 与 OMO 插件排障记录
 date: 2026-05-06 0:00:00 +0800
 categories: [笔记, 开发]
-<<<<<<< HEAD:_posts/2026-05-06-OpenCodeDesktop与OMO插件排障记录.md
 tags:
   [
     笔记,
@@ -17,9 +15,6 @@ tags:
     DeepSeek v4,
     vibe coding,
   ]
-description: 记录 OpenCode Desktop 更新后 OMO 插件失效的定位过程与运行时兼容性结论。
-=======
-tags: [笔记, 编程, opencode, OMO, 排障, Windows, Electron, Tauri, DeepSeek v4, vibe coding]
 description: 记录 OpenCode Desktop 更新后 OMO 插件失效的定位过程与运行时兼容性结论。
 ---
 
