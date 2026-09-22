@@ -3,7 +3,7 @@ title: Mask2Former 多标签改造：第三周排障记录
 date: 2025-04-23 12:00:00 +0800
 categories: [笔记, 开发]
 tags: [笔记, 编程, 深度学习, CUDA, 实例分割, detectron, DEBUG]
-description: 记录训练参数、类别匹配、推理输出与可视化阶段的排障过程。
+description: 又是经典的一句BUG改了一周系列...
 ---
 
 > 感觉算是经验帖，以后可能可以作为自己DEBUG的范式了。
@@ -103,7 +103,7 @@ python train_net.py \
 
 ### Ablation Result
 
-这几天主要由我负责调试，组里也暂时有空闲 GPU；考虑到上述两种情况，我分别跑了一组 ablation。
+这几天就我在忙，组里面刚好没啥人在用卡，考虑到上述两种情况，干脆每种都跑了一个ablation。
 
 > 实验结果表明，核心问题在第二个，第一个确实影响不大。
 {: .prompt-info }
@@ -358,11 +358,11 @@ class MultiTaskMaskFormer(MaskFormer):
             return processed_results
 ```
 
-仔细检查后，我发现这里的实现与注释不一致。AI自己注释都写的是`from decoder output`，输入却是`query_feat.weight`。也就是说，它把模型自己的权重信息（weight）直接接到了subcat_embed，而完全没有考虑图片的特征，这结果能变才怪了。
+仔细看了实在没绷住。AI自己注释都写的是`from decoder output`，输入却是`query_feat.weight`。也就是说，它把模型自己的权重信息（weight）直接接到了subcat_embed，而完全没有考虑图片的特征，这结果能变才怪了。
 
 > 本来是偷懒让AI照着logits部分抄的（因为结构差不多），看样子是抄也抄不会了。
 >
-> 因此只能先手动修正；这也提醒我，核心代码仍需要自己掌握并逐段核对。
+> 没辙自己改吧，以后核心的代码还是得自己写了。
 {: .prompt-warning }
 
 正确的写法是由`outputs`引导到输出，看懂了就很简单了，把这个问题修了之后就解决了，修复后的代码如下：
@@ -420,7 +420,7 @@ class MultiTaskMaskFormer(MaskFormer):
 
 整合mobilenetv3的想法直接down掉了没时间做了，multitask的结构基本可以正常运行，基本就可以告捷了。
 
-还有一个小问题就是结果的可视化和结果值的评估，对于 Transformer 结构中 Queries 的状态，可视化和评估方式我暂时还没有明确结论。
+还有一个小问题就是结果的可视化和结果值的评估，其实对于Transformer结构给出Queries的状态我其实没啥头绪。
 
 ### 结果评估算法？
 
