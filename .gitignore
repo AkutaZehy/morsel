@@ -29,3 +29,4 @@ assets/js/dist
 # Obsidian
 */.obsidian/*
 _backup/*
+.zcode/
