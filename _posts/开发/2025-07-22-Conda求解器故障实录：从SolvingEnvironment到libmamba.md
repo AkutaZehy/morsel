@@ -10,11 +10,11 @@ description: 作为最常见的Python跨平台的包管理和环境管理工具�
 
 涉及到Conda开发的往期文章：
 
-[Labelme 安装说明（Windows）]({% post_url 2025-03-17-Labelme安装说明（Windows） %})
+[Labelme 安装说明（Windows）]({% post_url 开发/2025-03-17-Labelme安装说明（Windows） %})
 
-[Mask2Former 开发排障记录]({% post_url 2025-04-06-Mask2Former开发排障记录 %})
+[Mask2Former 开发排障记录]({% post_url 开发/2025-04-06-Mask2Former开发排障记录 %})
 
-[Conda 开发两则：Conda 与 Pip 的协作边界]({% post_url 2025-07-16-Conda开发两则：Conda与Pip的协作边界 %})
+[Conda 开发两则：Conda 与 Pip 的协作边界]({% post_url 开发/2025-07-16-Conda开发两则：Conda与Pip的协作边界 %})
 
 作为最常见的Python跨平台的包管理和环境管理工具，Conda的使用体验非常糟糕，这一次配环境和看Github上issue的经历实在是让我愤怒到想要写一篇文章来痛斥Conda。
 

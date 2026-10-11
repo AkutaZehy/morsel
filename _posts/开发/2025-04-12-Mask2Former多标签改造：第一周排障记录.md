@@ -16,15 +16,15 @@ description: 折磨了我整整一周的时间，进入编程领域至今处理�
 
 前情提要：
 
-[第一次使用Linux远程开发]({% post_url 2025-03-12-第一次使用Linux远程开发 %})
+[第一次使用Linux远程开发]({% post_url 开发/2025-03-12-第一次使用Linux远程开发 %})
 
-[Mask2Former 开发排障记录]({% post_url 2025-04-06-Mask2Former开发排障记录 %})
+[Mask2Former 开发排障记录]({% post_url 开发/2025-04-06-Mask2Former开发排障记录 %})
 
 这个description可能是有点标题党了，对于很多人来说可能只是一个微不足道的小问题，但它确实也是我编程以来处理过的最棘手的问题，于是又单开了一篇文章来记录。
 
 按照开发周期（一周）来进行记录，（一）记录的是第一周的内容，主要包括了整个新模型构建到运行的阶段。
 
-下一篇见[Mask2Former 多标签改造：第二周排障记录]({% post_url 2025-04-16-Mask2Former多标签改造：第二周排障记录 %})
+下一篇见[Mask2Former 多标签改造：第二周排障记录]({% post_url 开发/2025-04-16-Mask2Former多标签改造：第二周排障记录 %})
 
 > 请善用导航，本文内容特别长。
 {: .prompt-info }
@@ -451,4 +451,4 @@ class CustomMultiScaleMaskedTransformerDecoder(MultiScaleMaskedTransformerDecode
 
 后面等待着我的是...
 
-[Mask2Former 多标签改造：第二周排障记录]({% post_url 2025-04-16-Mask2Former多标签改造：第二周排障记录 %})
+[Mask2Former 多标签改造：第二周排障记录]({% post_url 开发/2025-04-16-Mask2Former多标签改造：第二周排障记录 %})

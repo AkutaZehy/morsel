@@ -8,7 +8,7 @@ description: detectron2阴魂不散，带上GPT迎击mask2former...
 
 前情提要：
 
-[第一次使用Linux远程开发]({% post_url 2025-03-12-第一次使用Linux远程开发 %})
+[第一次使用Linux远程开发]({% post_url 开发/2025-03-12-第一次使用Linux远程开发 %})
 
 本来打算这一篇文章全部写完的，想想会太长，单独开一篇记录detectron2/mask2former框架开发踩的坑，把前面一则中与这个框架相关一点的也一并移到这边。
 
@@ -17,7 +17,7 @@ description: detectron2阴魂不散，带上GPT迎击mask2former...
 
 后来发现了一个极为棘手的问题，请移步：
 
-[Mask2Former 多标签改造：第一周排障记录]({% post_url 2025-04-12-Mask2Former多标签改造：第一周排障记录 %})
+[Mask2Former 多标签改造：第一周排障记录]({% post_url 开发/2025-04-12-Mask2Former多标签改造：第一周排障记录 %})
 
 ## 关于detectron2的一点碎碎念
 

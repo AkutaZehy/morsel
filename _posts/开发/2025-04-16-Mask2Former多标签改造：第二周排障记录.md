@@ -16,11 +16,11 @@ description: 事情变得越发麻烦起来...
 
 前情提要：
 
-[Mask2Former 多标签改造：第一周排障记录]({% post_url 2025-04-12-Mask2Former多标签改造：第一周排障记录 %})
+[Mask2Former 多标签改造：第一周排障记录]({% post_url 开发/2025-04-12-Mask2Former多标签改造：第一周排障记录 %})
 
 按照开发周期（一周）来进行记录，（二）记录的是第二周的内容。
 
-下一篇见[Mask2Former 多标签改造：第三周排障记录]({% post_url 2025-04-23-Mask2Former多标签改造：第三周排障记录 %})
+下一篇见[Mask2Former 多标签改造：第三周排障记录]({% post_url 开发/2025-04-23-Mask2Former多标签改造：第三周排障记录 %})
 
 > 请善用导航，本文内容特别长。
 {: .prompt-info }
@@ -381,4 +381,4 @@ class D2PretrainedMobileNetV3(Backbone):
 
 后面等待着我的是...
 
-[Mask2Former 多标签改造：第三周排障记录]({% post_url 2025-04-23-Mask2Former多标签改造：第三周排障记录 %})
+[Mask2Former 多标签改造：第三周排障记录]({% post_url 开发/2025-04-23-Mask2Former多标签改造：第三周排障记录 %})
